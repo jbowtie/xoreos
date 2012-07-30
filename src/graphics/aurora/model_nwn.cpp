@@ -856,7 +856,6 @@ void ModelNode_NWN_Binary::readNodeControllers(Model_NWN::ParserContext &ctx,
 				q.q = data[dataIndex + (r * columnCount) + 3];
 				_orientationFrames.push_back(q);
 				// Starting orientation
-				// TODO: Handle animation orientation correctly
 				if (data[timeIndex + 0] == 0.0) {
 					_orientation[0] = data[dataIndex + 0];
 					_orientation[1] = data[dataIndex + 1];
