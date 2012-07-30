@@ -519,8 +519,7 @@ void ModelNode_NWN_Binary::load(Model_NWN::ParserContext &ctx) {
 	}
 
 	if (flags & kNodeFlagHasEmitter) {
-		// TODO: Emitter
-		ctx.mdl->skip(0xD8);
+		readEmitter(ctx);
 	}
 
 	if (flags & kNodeFlagHasReference) {
@@ -804,12 +803,52 @@ void ModelNode_NWN_Binary::readAnim(Model_NWN::ParserContext &ctx) {
 	uint32 textureVerticesCount = ctx.mdl->readUint32LE();
 }
 
+void ModelNode_NWN_Binary::readEmitter(Model_NWN::ParserContent &ctx) {
+    float deadspace = ctx.mdl->readIEEEFloatLE();
+	float blastRadius = ctx.mdl->readIEEEFloatLE();
+	float blastLength = ctx.mdl->readIEEEFloatLE();
+
+	uint32 xgrid        = ctx.mdl->readUint32LE();
+	uint32 ygrid        = ctx.mdl->readUint32LE();
+	uint32 spawnType    = ctx.mdl->readUint32LE(); //Normal or Trail
+    //way the emitter generates particles
+    //Fountain, Single, Explosion, Lightning
+	Common::UString update;
+	update.readFixedASCII(*ctx.mdl, 32);
+    //how particles are rendered
+	Common::UString render;
+	render.readFixedASCII(*ctx.mdl, 32);
+    //blend mode (for texture type emitters)
+	Common::UString blend;
+	blend.readFixedASCII(*ctx.mdl, 32);
+    //texture to use
+	Common::UString texture;
+	texture.readFixedASCII(*ctx.mdl, 64);
+    //model name (for chunk-style emitters)
+	Common::UString chunkname;
+	chunkname.readFixedASCII(*ctx.mdl, 16);
+    //whether texture is rendered 2-sided
+    //most are billboarded so defaults to 0
+	uint32 twosided    = ctx.mdl->readUint32LE();
+    //should the emitter loop (might apply only to single update type)
+	uint32 loop        = ctx.mdl->readUint32LE();
+    //used to control order in scene, higher rendered later
+	uint16 renderorder = ctx.mdl->readUint16LE();
+    //replace with skip call
+	uint16 padding     = ctx.mdl->readUint16LE();
+	//ctx.mdl->skip(2);
+    //see binmdl docs on emitter to decipher
+	uint32 flags       = ctx.mdl->readUint32LE();
+}
+
 void ModelNode_NWN_Binary::readNodeControllers(Model_NWN::ParserContext &ctx,
 		uint32 offset, uint32 count, std::vector<float> &data) {
 
 	uint32 pos = ctx.mdl->seekTo(offset);
 
 	// TODO: readNodeControllers: Implement this properly :P
+    // controllers[type] = array of frames
+    // frame[time, nValues(n=column count)]
 
 	for (uint32 i = 0; i < count; i++) {
 		uint32 type        = ctx.mdl->readUint32LE();
